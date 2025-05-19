@@ -1,1 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Vigenère Cipher - Applied Cryptography{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h2 class="mb-0">Vigenère Cipher</h2>
+    </div>
+    <div class="card-body">
+        <h4>About Vigenère Cipher</h4>
+        <p>
+            The Vigenère Cipher is a method of encrypting text by using a series of interwoven Caesar ciphers, based on the letters of a keyword and a custom alphabet.
+        </p>
 
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">Vigenère Key:</div>
+                    <div class="card-body">
+                        <input id="vigenere-key" class="form-control" value="KEYWORD">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">Alphabet (unique characters):</div>
+                    <div class="card-body">
+                        <input id="vigenere-alphabet" class="form-control" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">Input</div>
+                    <div class="card-body">
+                        <textarea id="vigenere-input-text" class="form-control" rows="2">Hello bob!</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
