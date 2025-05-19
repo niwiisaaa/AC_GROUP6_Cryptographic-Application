@@ -196,3 +196,223 @@ def dh_xor_encrypt(text, shared_secret):
 def dh_xor_decrypt(data, shared_secret):
     key = dh_derive_key(shared_secret)
     return ''.join(chr(b ^ key[i % len(key)]) for i, b in enumerate(data))
+
+
+# ----------------- API Routes ----------------- #
+
+@app.route('/api/xor', methods=['POST'])
+def api_xor():
+    data = request.json
+    text = data.get('text', '')
+    key = data.get('key', '')
+    mode = data.get('mode', 'encrypt')
+
+    if not text or not key:
+        return jsonify({'error': 'Missing text or key'}), 400
+
+    result = ""
+    breakdown = []
+
+    try:
+        if mode == 'encrypt':
+            xor_bytes = bytearray()
+            for i in range(len(text)):
+                pt_char = text[i]
+                key_char = key[i % len(key)]
+                xor_val = ord(pt_char) ^ ord(key_char)
+                xor_bytes.append(xor_val)
+                breakdown.append({
+                    'pt_char': pt_char,
+                    'pt_bin': format(ord(pt_char), '08b'),
+                    'key_char': key_char,
+                    'key_bin': format(ord(key_char), '08b'),
+                    'xor_hex': format(xor_val, '02X')
+                })
+            result = ' '.join(format(b, '02X') for b in xor_bytes)
+
+        elif mode == 'decrypt':
+            try:
+                hex_parts = text.strip().split()
+                xor_bytes = bytes(int(h, 16) for h in hex_parts)
+            except Exception:
+                return jsonify({'error': 'Invalid hex input for decryption'}), 400
+
+            out_chars = []
+            for i in range(len(xor_bytes)):
+                xor_val = xor_bytes[i]
+                key_char = key[i % len(key)]
+                pt_val = xor_val ^ ord(key_char)
+                out_chars.append(chr(pt_val))
+                breakdown.append({
+                    'pt_char': chr(pt_val) if 32 <= pt_val <= 126 else '.',
+                    'pt_bin': format(pt_val, '08b'),
+                    'key_char': key_char,
+                    'key_bin': format(ord(key_char), '08b'),
+                    'xor_hex': format(xor_val, '02X')
+                })
+            result = ''.join(out_chars)
+        else:
+            return jsonify({'error': 'Invalid mode'}), 400
+
+        return jsonify({'result': result, 'breakdown': breakdown})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/caesar', methods=['POST'])
+def api_caesar():
+    data = request.json
+    text = data.get('text', '')
+    shift = data.get('shift', '')
+    mode = data.get('mode', 'encrypt')
+    if not text or not shift:
+        return jsonify({'error': 'Missing text or shift'}), 400
+    try:
+        result, breakdown = caesar_cipher(text, shift, mode)
+        return jsonify({'result': result, 'breakdown': breakdown})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vigenere', methods=['POST'])
+def api_vigenere():
+    data = request.json
+    text = data.get('text', '')
+    key = data.get('key', '')
+    alphabet = data.get('alphabet', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    mode = data.get('mode', 'encrypt')
+    if not text:
+        return jsonify({'result': '', 'breakdown': []})
+    if not key or not alphabet:
+        # Return original text if key or alphabet is missing
+        return jsonify({'result': text, 'breakdown': [{'original': c, 'key_char': '', 'shift': '', 'result': c} for c in text]})
+    try:
+        result, breakdown = vigenere_cipher(text, key, mode, alphabet)
+        return jsonify({'result': result, 'breakdown': breakdown})
+    except Exception as e:
+        # Always return at least the original text as result
+        return jsonify({'result': text, 'breakdown': [{'original': c, 'key_char': '', 'shift': '', 'result': c} for c in text], 'error': str(e)}), 200
+
+@app.route('/api/hash', methods=['POST'])
+def api_hash():
+    data = request.json
+    text = data.get('text', '')
+    algo = data.get('algo', 'sha256')
+    if not text:
+        return jsonify({'error': 'Missing text'}), 400
+    try:
+        hashval = compute_hash(text, algo)
+        return jsonify({'result': hashval})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/rsa', methods=['POST'])
+def api_rsa():
+    data = request.json
+    action = data.get('action')
+    if action == 'generate':
+        pub, priv = rsa_generate_keys()
+        return jsonify({'public_key': pub, 'private_key': priv})
+    elif action == 'encrypt':
+        message = data.get('message', '')
+        e = int(data.get('e'))
+        n = int(data.get('n'))
+        encrypted = rsa_encrypt(message, e, n)
+        return jsonify({'encrypted': encrypted})
+    elif action == 'decrypt':
+        encrypted = data.get('encrypted', [])
+        d = int(data.get('d'))
+        n = int(data.get('n'))
+        decrypted = rsa_decrypt(encrypted, d, n)
+        return jsonify({'decrypted': decrypted})
+    else:
+        return jsonify({'error': 'Invalid action'}), 400
+
+@app.route('/api/diffie_hellman', methods=['POST'])
+def api_diffie_hellman():
+    data = request.json
+    action = data.get('action')
+    if action == 'generate':
+        params = dh_generate_params()
+        return jsonify(params)
+    elif action == 'encrypt':
+        text = data.get('text', '')
+        shared_secret = int(data.get('shared_secret'))
+        encrypted = dh_xor_encrypt(text, shared_secret)
+        return jsonify({'encrypted': encrypted})
+    elif action == 'decrypt':
+        encrypted = data.get('encrypted', [])
+        shared_secret = int(data.get('shared_secret'))
+        decrypted = dh_xor_decrypt(encrypted, shared_secret)
+        return jsonify({'decrypted': decrypted})
+    else:
+        return jsonify({'error': 'Invalid action'}), 400
+
+@app.route('/upload/block', methods=['POST'])
+def upload_block():
+    file = request.files.get('file')
+    key = request.form.get('key', '').encode()
+    mode = request.form.get('mode')
+    block_size = int(request.form.get('block_size', 8))
+
+    if not file or not key or mode not in ['encrypt', 'decrypt']:
+        return jsonify({'error': 'Missing fields'}), 400
+
+    content = file.read()
+
+    try:
+        if mode == 'encrypt':
+            output_bytes = xor_block_cipher(content, key, block_size, encrypt=True)
+            hex_output = ' '.join(format(b, '02X') for b in output_bytes)
+            return jsonify({'result': hex_output})
+        else:
+            hex_parts = content.decode().strip().split()
+            decoded = bytes(int(h, 16) for h in hex_parts)
+            decrypted = xor_block_cipher(decoded, key, block_size, encrypt=False)
+            return jsonify({'result': decrypted.decode(errors="replace")})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/upload/caesar', methods=['POST'])
+def upload_caesar():
+    file = request.files.get('file')
+    shift = request.form.get('shift', '')
+    mode = request.form.get('mode', 'encrypt')
+    if not file or not shift or mode not in ['encrypt', 'decrypt']:
+        return jsonify({'error': 'Missing fields'}), 400
+    try:
+        content = file.read().decode(errors='replace')
+        result, _ = caesar_cipher(content, shift, mode)
+        return jsonify({'result': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/upload/vigenere', methods=['POST'])
+def upload_vigenere():
+    file = request.files.get('file')
+    key = request.form.get('key', '')
+    alphabet = request.form.get('alphabet', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    mode = request.form.get('mode', 'encrypt')
+    if not file:
+        return jsonify({'result': '', 'error': 'No file uploaded'})
+    content = file.read().decode(errors='replace')
+    if not key or not alphabet:
+        # Return original file content if key or alphabet is missing
+        return jsonify({'result': content})
+    try:
+        result, _ = vigenere_cipher(content, key, mode, alphabet)
+        return jsonify({'result': result})
+    except Exception as e:
+        # Always return at least the original file content as result
+        return jsonify({'result': content, 'error': str(e)}), 200
+
+@app.route('/upload/hash', methods=['POST'])
+def upload_hash():
+    file = request.files.get('file')
+    algo = request.form.get('algo', 'sha256')
+    if not file:
+        return jsonify({'error': 'No file uploaded'}), 400
+    try:
+        content = file.read()
+        hashval = compute_hash(content, algo)
+        return jsonify({'result': hashval})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
