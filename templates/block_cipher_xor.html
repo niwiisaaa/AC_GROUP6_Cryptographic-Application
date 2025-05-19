@@ -80,3 +80,73 @@
         </div>
     </div>
 </div> 
+
+<script>
+    // Text-based XOR Cipher
+    document.getElementById('text-process-btn').addEventListener('click', function () {
+        const inputText = document.getElementById('text-input').value;
+        const key = document.getElementById('text-key').value;
+        const mode = document.getElementById('text-mode').value;
+
+        if (!inputText || !key) {
+            alert('Please enter both text and key');
+            return;
+        }
+
+        let payload = { text: inputText, key: key, mode: mode };
+
+        fetch('/api/xor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('text-results-container').classList.remove('d-none');
+            if (data.error) {
+                document.getElementById('text-output-display').textContent = "Error: " + data.error;
+                document.getElementById('breakdown').textContent = '';
+                return;
+            }
+
+            document.getElementById('text-output-display').textContent = data.result;
+
+            let breakdownText = '';
+            if (data.breakdown) {
+                data.breakdown.forEach(item => {
+                    breakdownText += `Plaintext byte: ${item.pt_bin} = ${item.pt_char}\n`;
+                    breakdownText += `Key byte.........: ${item.key_bin} = ${item.key_char}\n`;
+                    breakdownText += `XOR result......: ${item.xor_bin} = ${item.xor_char}\n\n`;
+                });
+            }
+            document.getElementById('breakdown').textContent = breakdownText;
+        });
+    });
+
+    // File-based XOR Block Cipher
+    document.getElementById('block-file-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/upload/block', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById('file-result');
+            if (data.result) {
+                resultDiv.innerHTML = `<div class="alert alert-success"><strong>Result:</strong><pre>${data.result}</pre></div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('file-result').innerHTML = '<div class="alert alert-danger">An error occurred</div>';
+        });
+    });
+</script>
+
+{% endblock %}
+
