@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Hashing - Applied Cryptography{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h2 class="mb-0">Hashing Functions</h2>
+    </div>
+    <div class="card-body">
+        <h4>About Hashing</h4>
+        <p>
+            Hash functions map data of arbitrary size to fixed-size values. Common algorithms include SHA256, SHA512, MD5, and SHA1.
+        </p>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Text Hashing</h5>
+                <div class="mb-3">
+                    <textarea id="hash-text-input" class="form-control" rows="3" placeholder="Enter text to hash"></textarea>
+                </div>
+                <div class="mb-3">
+                    <select id="hash-algo" class="form-select">
+                        <option value="sha256" selected>SHA256</option>
+                        <option value="sha512">SHA512</option>
+                        <option value="md5">MD5</option>
+                        <option value="sha1">SHA1</option>
+                    </select>
+                </div>
+                <button id="hash-process-btn" class="btn btn-dark">Hash Text</button>
+                <div id="hash-text-result" class="mt-3"></div>
+            </div>
+            <div class="col-md-6">
+                <h5>File Hashing</h5>
+                <form id="hash-file-form" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <select name="algo" class="form-select">
+                            <option value="sha256" selected>SHA256</option>
+                            <option value="sha512">SHA512</option>
+                            <option value="md5">MD5</option>
+                            <option value="sha1">SHA1</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Hash File</button>
+                </form>
+                <div id="hash-file-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById('hash-process-btn').addEventListener('click', function () {
+        const text = document.getElementById('hash-text-input').value;
+        const algo = document.getElementById('hash-algo').value;
+        if (!text) {
+            alert('Please enter text to hash');
+            return;
+        }
+        fetch('/api/hash', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text, algo: algo })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById('hash-text-result');
+            if (data.result) {
+                resultDiv.innerHTML = `<div class="alert alert-success"><strong>Hash:</strong><pre>${data.result}</pre></div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+            }
+        });
+    });
+
+    document.getElementById('hash-file-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('/upload/hash', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById('hash-file-result');
+            if (data.result) {
+                resultDiv.innerHTML = `<div class="alert alert-success"><strong>Hash:</strong><pre>${data.result}</pre></div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
