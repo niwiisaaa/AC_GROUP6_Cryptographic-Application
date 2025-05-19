@@ -1,3 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Diffie-Hellman - Applied Cryptography{% endblock %}
 {% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h2 class="mb-0">Diffie-Hellman Key Exchange</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h4>About Diffie-Hellman</h4>
+                        <p>
+                            The Diffie-Hellman key exchange is a method of securely exchanging cryptographic keys over a public channel. 
+                            It allows two parties to jointly establish a shared secret over an insecure communications channel without having prior knowledge of each other.
+                            This shared secret can then be used for symmetric encryption.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <button id="generate-btn" class="btn btn-primary">Generate New Parameters</button>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Public Parameters</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Prime (p):</label>
+                                        <input type="text" id="prime" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Generator (g):</label>
+                                        <input type="text" id="generator" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
