@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}RSA Basic - Applied Cryptography{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h2 class="mb-0">RSA Basic</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h4>About RSA</h4>
+                        <p>
+                            RSA (Rivest–Shamir–Adleman) is a public-key cryptosystem widely used for secure data transmission. 
+                            It is based on the practical difficulty of factoring the product of two large prime numbers.
+                            In RSA, a user creates and publishes a public key based on two large prime numbers, along with an auxiliary value. 
+                            The prime numbers are kept secret. Messages can be encrypted by anyone using the public key, but can only be decoded by someone who knows the prime numbers.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <button id="generate-keys-btn" class="btn btn-primary">Generate New RSA Keys</button>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Public Key</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Public Exponent (e):</label>
+                                        <input type="text" id="public-e" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Modulus (n):</label>
+                                        <input type="text" id="public-n" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0">Private Key (Keep Secret!)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Private Exponent (d):</label>
+                                        <input type="text" id="private-d" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Modulus (n):</label>
+                                        <input type="text" id="private-n" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Encrypt / Decrypt</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Select operation:</strong>
+                                        <div class="form-check form-check-inline ms-3">
+                                            <input class="form-check-input" type="radio" name="rsa-operation" id="rsa-encrypt" value="encrypt" checked>
+                                            <label class="form-check-label" for="rsa-encrypt">Encrypt</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="rsa-operation" id="rsa-decrypt" value="decrypt">
+                                            <label class="form-check-label" for="rsa-decrypt">Decrypt</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="rsa-input" class="form-label" id="rsa-input-label">Plaintext:</label>
+                                        <textarea id="rsa-input" class="form-control" rows="4" placeholder="Enter text to encrypt"></textarea>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button id="rsa-process-btn" class="btn btn-primary">Encrypt</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="rsa-output" class="form-label" id="rsa-output-label">Encrypted Data:</label>
+                        <textarea id="rsa-output" class="form-control" rows="4" readonly></textarea>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Note:</strong> This is a simplified implementation of RSA for educational purposes. In practice, RSA uses much larger prime numbers (1024-4096 bits) and additional padding schemes for secure encryption.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let encryptedData = [];
+
+    function generateKeys() {
+        fetch('/api/rsa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'generate'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('public-e').value = data.public_key.e;
+            document.getElementById('public-n').value = data.public_key.n;
+            document.getElementById('private-d').value = data.private_key.d;
+            document.getElementById('private-n').value = data.private_key.n;
+            
+            // Clear any existing data
+            document.getElementById('rsa-input').value = '';
+            document.getElementById('rsa-output').value = '';
+            encryptedData = [];
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while generating keys');
+        });
+    }
+
+    function updateLabels() {
+        const encryptRadio = document.getElementById('rsa-encrypt');
+        const inputLabel = document.getElementById('rsa-input-label');
+        const outputLabel = document.getElementById('rsa-output-label');
+        const processBtn = document.getElementById('rsa-process-btn');
+        if (encryptRadio.checked) {
+            inputLabel.textContent = "Plaintext:";
+            outputLabel.textContent = "Encrypted Data:";
+            processBtn.textContent = "Encrypt";
+            document.getElementById('rsa-input').placeholder = "Enter text to encrypt";
+        } else {
+            inputLabel.textContent = "Encrypted Data (JSON array):";
+            outputLabel.textContent = "Decrypted Result:";
+            processBtn.textContent = "Decrypt";
+            document.getElementById('rsa-input').placeholder = "Paste encrypted JSON array here";
+        }
+        document.getElementById('rsa-output').value = '';
+    }
+
+    function processRSA() {
+        const encryptRadio = document.getElementById('rsa-encrypt');
+        const input = document.getElementById('rsa-input').value;
+        const outputArea = document.getElementById('rsa-output');
+        if (encryptRadio.checked) {
+            // Encrypt
+            const e = document.getElementById('public-e').value;
+            const n = document.getElementById('public-n').value;
+            if (!input) {
+                alert('Please enter text to encrypt');
+                return;
+            }
+            fetch('/api/rsa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'encrypt',
+                    message: input,
+                    e: parseInt(e),
+                    n: parseInt(n)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                encryptedData = data.encrypted;
+                outputArea.value = JSON.stringify(encryptedData);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during encryption');
+            });
+        } else {
+            // Decrypt
+            const d = document.getElementById('private-d').value;
+            const n = document.getElementById('private-n').value;
+            let encryptedArr;
+            try {
+                encryptedArr = JSON.parse(input);
+                if (!Array.isArray(encryptedArr)) throw new Error();
+            } catch {
+                alert('Please enter a valid JSON array of numbers for decryption.');
+                return;
+            }
+            fetch('/api/rsa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'decrypt',
+                    encrypted: encryptedArr,
+                    d: parseInt(d),
+                    n: parseInt(n)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                outputArea.value = data.decrypted;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during decryption');
+            });
+        }
+    }
+
+    document.getElementById('generate-keys-btn').addEventListener('click', generateKeys);
+    document.getElementById('rsa-process-btn').addEventListener('click', processRSA);
+    document.getElementById('rsa-encrypt').addEventListener('change', updateLabels);
+    document.getElementById('rsa-decrypt').addEventListener('change', updateLabels);
+
+    // Generate keys and set initial labels on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        generateKeys();
+        updateLabels();
+    });
+</script>
+{% endblock %}
