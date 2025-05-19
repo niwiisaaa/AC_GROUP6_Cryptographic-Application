@@ -37,3 +37,64 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <strong>Select one:</strong>
+                        <div class="form-check form-check-inline ms-3">
+                            <input class="form-check-input" type="radio" name="vigenere-operation" id="vigenere-encrypt" value="encrypt" checked>
+                            <label class="form-check-label" for="vigenere-encrypt">Encrypt</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="vigenere-operation" id="vigenere-decrypt" value="decrypt">
+                            <label class="form-check-label" for="vigenere-decrypt">Decrypt</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col text-center">
+                <button id="vigenere-process-btn" class="btn btn-info px-5 text-white"> ENTER </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h2 class="text-center mb-3" id="vigenere-table-title">Result</h2>
+                <textarea id="vigenere-output-text" class="form-control" rows="4" readonly></textarea>
+            </div>
+        </div>
+
+        <!-- File-based Vigenère Cipher -->
+        <div class="card mt-5">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">File-based Vigenère Cipher</h4>
+            </div>
+            <div class="card-body">
+                <form id="vigenere-file-form" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="key" placeholder="Vigenère Key (e.g. KEYWORD)" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="alphabet" placeholder="Alphabet (unique characters)" class="form-control" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" required>
+                    </div>
+                    <div class="mb-3">
+                        <select name="mode" class="form-select">
+                            <option value="encrypt" selected>Encrypt</option>
+                            <option value="decrypt">Decrypt</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info text-white">Process File</button>
+                </form>
+                <div id="vigenere-file-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
