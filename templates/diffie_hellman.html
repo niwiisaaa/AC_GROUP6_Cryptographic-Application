@@ -91,3 +91,172 @@
                         <strong>Notice:</strong> Both Alice and Bob have the same shared secret key without ever transmitting the key itself. Only the public keys are transmitted.
                     </div>
                     
+                    <!-- Text Encryption/Decryption using Shared Secret -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h4 class="mb-0">Text Encryption/Decryption with Shared Secret</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Choose Shared Secret:</label>
+                                <select id="dh-shared-choice" class="form-select">
+                                    <option value="a">Alice's Shared Secret</option>
+                                    <option value="b">Bob's Shared Secret</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Select operation:</strong>
+                                <div class="form-check form-check-inline ms-3">
+                                    <input class="form-check-input" type="radio" name="dh-operation" id="dh-encrypt" value="encrypt" checked>
+                                    <label class="form-check-label" for="dh-encrypt">Encrypt</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="dh-operation" id="dh-decrypt" value="decrypt">
+                                    <label class="form-check-label" for="dh-decrypt">Decrypt</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label id="dh-input-label" class="form-label">Plaintext:</label>
+                                <textarea id="dh-input" class="form-control" rows="3" placeholder="Enter text to encrypt"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button id="dh-process-btn" class="btn btn-info text-white">Encrypt</button>
+                            </div>
+                            <div class="mt-3">
+                                <label id="dh-output-label" class="form-label">Encrypted Data:</label>
+                                <textarea id="dh-output" class="form-control" rows="3" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Text Encryption/Decryption -->
+                </div>
+            </div>
+        </div>
+</div>
+
+<script>
+    let sharedA = null, sharedB = null;
+
+    function generateParams() {
+        fetch('/api/diffie_hellman', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'generate'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('prime').value = data.prime;
+            document.getElementById('generator').value = data.generator;
+            document.getElementById('private-a').value = data.private_a;
+            document.getElementById('private-b').value = data.private_b;
+            document.getElementById('public-a').value = data.public_a;
+            document.getElementById('public-b').value = data.public_b;
+            document.getElementById('shared-key-a').value = data.shared_key_a;
+            document.getElementById('shared-key-b').value = data.shared_key_b;
+            sharedA = data.shared_key_a;
+            sharedB = data.shared_key_b;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while generating parameters');
+        });
+    }
+
+    function updateDHLabels() {
+        const encryptRadio = document.getElementById('dh-encrypt');
+        const inputLabel = document.getElementById('dh-input-label');
+        const outputLabel = document.getElementById('dh-output-label');
+        const processBtn = document.getElementById('dh-process-btn');
+        if (encryptRadio.checked) {
+            inputLabel.textContent = "Plaintext:";
+            outputLabel.textContent = "Encrypted Data (JSON array):";
+            processBtn.textContent = "Encrypt";
+            document.getElementById('dh-input').placeholder = "Enter text to encrypt";
+        } else {
+            inputLabel.textContent = "Encrypted Data (JSON array):";
+            outputLabel.textContent = "Decrypted Result:";
+            processBtn.textContent = "Decrypt";
+            document.getElementById('dh-input').placeholder = "Paste encrypted JSON array here";
+        }
+        document.getElementById('dh-output').value = '';
+    }
+
+    function processDH() {
+        const encryptRadio = document.getElementById('dh-encrypt');
+        const input = document.getElementById('dh-input').value;
+        const outputArea = document.getElementById('dh-output');
+        const sharedChoice = document.getElementById('dh-shared-choice').value;
+        const sharedSecret = sharedChoice === 'a' ? sharedA : sharedB;
+        if (!sharedSecret) {
+            alert('Shared secret not available. Generate parameters first.');
+            return;
+        }
+        if (encryptRadio.checked) {
+            // Encrypt
+            if (!input) {
+                alert('Please enter text to encrypt');
+                return;
+            }
+            fetch('/api/diffie_hellman', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'encrypt',
+                    text: input,
+                    shared_secret: sharedSecret
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                outputArea.value = JSON.stringify(data.encrypted);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during encryption');
+            });
+        } else {
+            // Decrypt
+            let encryptedArr;
+            try {
+                encryptedArr = JSON.parse(input);
+                if (!Array.isArray(encryptedArr)) throw new Error();
+            } catch {
+                alert('Please enter a valid JSON array of numbers for decryption.');
+                return;
+            }
+            fetch('/api/diffie_hellman', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'decrypt',
+                    encrypted: encryptedArr,
+                    shared_secret: sharedSecret
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                outputArea.value = data.decrypted;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during decryption');
+            });
+        }
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', generateParams);
+    document.getElementById('dh-process-btn').addEventListener('click', processDH);
+    document.getElementById('dh-encrypt').addEventListener('change', updateDHLabels);
+    document.getElementById('dh-decrypt').addEventListener('change', updateDHLabels);
+
+    // Generate parameters and set initial labels on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        generateParams();
+        updateDHLabels();
+    });
+</script>
+{% endblock %}
