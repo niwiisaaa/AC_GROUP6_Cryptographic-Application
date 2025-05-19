@@ -107,7 +107,6 @@ def compute_hash(data, algo='sha256'):
     h.update(data)
     return h.hexdigest()
 
-
 # ----------------- RSA Basic Core ----------------- #
 
 def gcd(a, b):
@@ -196,7 +195,6 @@ def dh_xor_encrypt(text, shared_secret):
 def dh_xor_decrypt(data, shared_secret):
     key = dh_derive_key(shared_secret)
     return ''.join(chr(b ^ key[i % len(key)]) for i, b in enumerate(data))
-
 
 # ----------------- API Routes ----------------- #
 
@@ -416,3 +414,38 @@ def upload_hash():
         return jsonify({'result': hashval})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ----------------- Page Routes ----------------- #
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/block_cipher_xor')
+def block_cipher_xor():
+    return render_template('block_cipher_xor.html')
+
+@app.route('/caesar_cipher')
+def caesar_cipher_page():
+    return render_template('caesar_cipher.html')
+
+@app.route('/vigenere')
+def vigenere_page():
+    return render_template('vigenere.html')
+
+@app.route('/hash')
+def hash_page():
+    return render_template('hash.html')
+
+@app.route('/rsa_basic')
+def rsa_basic():
+    return render_template('rsa_basic.html')
+
+@app.route('/diffie_hellman')
+def diffie_hellman_page():
+    return render_template('diffie_hellman.html')
+
+# ----------------- Run Server ----------------- #
+
+if __name__ == '__main__':
+    app.run(debug=True)
