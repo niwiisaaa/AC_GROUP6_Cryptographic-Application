@@ -98,3 +98,74 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const encryptRadio = document.getElementById("vigenere-encrypt");
+    const decryptRadio = document.getElementById("vigenere-decrypt");
+    const titleElement = document.getElementById("vigenere-table-title");
+    const processBtn = document.getElementById('vigenere-process-btn');
+    const outputArea = document.getElementById('vigenere-output-text');
+
+    function updateTableTitle() {
+        titleElement.textContent = encryptRadio.checked ? "Encryption 🔐" : "Decryption 🔓";
+    }
+
+    encryptRadio.addEventListener("change", updateTableTitle);
+    decryptRadio.addEventListener("change", updateTableTitle);
+    updateTableTitle();
+
+    processBtn.addEventListener('click', function () {
+        const inputText = document.getElementById('vigenere-input-text').value;
+        const key = document.getElementById('vigenere-key').value;
+        const alphabet = document.getElementById('vigenere-alphabet').value;
+        const operation = document.querySelector('input[name="vigenere-operation"]:checked').value;
+
+        if (!inputText || !key || !alphabet) {
+            alert('Please enter text, key, and alphabet');
+            return;
+        }
+
+        fetch('/api/vigenere', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: inputText, key: key, alphabet: alphabet, mode: operation })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                outputArea.value = "Error: " + data.error;
+                return;
+            }
+
+            outputArea.value = data.result;
+
+        document.getElementById('vigenere-output-text').value = data.result; 
+        });
+    });
+
+    // File-based Vigenère Cipher
+    document.getElementById('vigenere-file-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/upload/vigenere', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            const resultDiv = document.getElementById('vigenere-file-result');
+            if (data.result) {
+                resultDiv.innerHTML = `<div class="alert alert-success"><strong>Result:</strong><pre>${data.result}</pre></div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('vigenere-file-result').innerHTML = '<div class="alert alert-danger">An error occurred</div>';
+        });
+    });
+});
+</script>
+{% endblock %}
