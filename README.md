@@ -69,21 +69,21 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 - **Type:** Asymmetric
 - **History/Background:** RSA was developed in 1977 by Ron Rivest, Adi Shamir, and Leonard Adleman at Massachusetts Institute of Technology. It was designed to secure digital communication over untrusted networks. RSA solved the problem of key distribution in traditional cryptography by introducing public-key encryption.
 - **Process:** Encrypts data using the recipient’s public key and decrypts it with their private key, enabling secure communication without prior key exchange.
-- **Library:** Custom Python code (using 'random' and math functions)
+- **Library:** Custom Python code (using `random` and math functions)
 - **Integration:** The app creates RSA key pairs and allows users to encrypt messages with the public key and decrypt them with the private key. Everything is handled inside the app with basic math.
 
 #### 5. Diffie-Hellman
 - **Type:** Asymmetric (Key Exchange) 
 - **History/Background:** Diffie-Hellman was introduced in 1976 by Whitfield Diffie and Martin Hellman, it was the first widely used method to securely exchange cryptographic keys over a public channel. It laid the foundation for public-key cryptography. 
 - **Process:** Two parties agree on a large prime number and a base. Each party chooses a secret number, computes a public value, and exchanges it. Using the received value and their own secret, both compute the same shared secret key. 
-- **Library:** 'cryptography.hazmat.primitives.asymmetric.dh', 'cryptocode'
+- **Library:** `cryptography.hazmat.primitives.asymmetric.dh`, `cryptocode`
 - **Integration:** This method securely creates a shared secret between two parties. The shared secret can then be used to encrypt and decrypt messages using the cryptocode library.
 
 #### 6. Hashing Functions (SHA-256, SHA-512, MD5, SHA-1)
 - **Type:** Hash 
 - **History/Background:** Hash functions were developed to ensure data integrity and security. MD5 was released in 1992, SHA-1 in 1995, and SHA-2 (which includes SHA-256 and SHA-512) in 2001 by the U.S. National Security Agency (NSA). 
 - **Process:** Converts input data into a fixed-length hash value. Any change in the input produces a completely different hash. The process is deterministic, fast, and irreversible.
-- **Library:** 'cryptography.hazmat.primitives.hashes', 'hashlib'
+- **Library:** `cryptography.hazmat.primitives.hashes`, `hashlib`
 - **Integration:** Converts text or file content into a unique hash value. The app supports different algorithms and shows the result instantly.
 
 ---
