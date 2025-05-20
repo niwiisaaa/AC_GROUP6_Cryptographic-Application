@@ -1,1 +1,116 @@
+body {
+    background-image: url('/static/background.png');
+    background-size: cover;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.custom-nav {
+    font-family: 'Georgia', serif;
+}
+
+.site-title {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.header-text {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    font-family: 'Georgia', serif;
+}
+
+.header-text h1 {
+    font-size: 2.0rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.header-text p {
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.black-bar {
+    height: 8px;
+    background-color: #000;
+    margin-bottom: 30px;
+}
+
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px 60px;
+    padding: 40px 20px 0 20px;
+}
+
+.crypto-card {
+    background: linear-gradient(145deg, #00c6ff, #084795 80%);
+    color: white;
+    text-align: center;
+    padding: 30px 20px 25px;
+    border-radius: 40px;
+    width: 380px;
+    min-height: 100px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.crypto-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.30);
+}
+
+.crypto-card h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.crypto-card p {
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+    color: #f0f0f0;
+}
+
+.try-button {
+    background-color: #000;
+    color: #fff;
+    padding: 8px 22px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 1px;
+}
+
+.try-button:hover {
+    background: #fff;
+    color: #0072ff;
+    border: 3px solid #0072ff;
+}
+
+footer {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    margin-top: 40px;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
 
