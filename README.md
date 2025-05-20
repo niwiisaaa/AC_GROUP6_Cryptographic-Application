@@ -90,7 +90,57 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 
 ## 🖥️ Sample Runs/Outputs
 
+Below are text-based output examples for each algorithm's functionality.
 
+### Symmetric Encryption/Decryption
+
+#### Caesar Cipher
+**Input Text:**  
+`CRYPTOGRAPHY`  
+**Key (Shift):** `3`  
+**Encrypted Output:**
+```
+FUBSWRJUDSKB
+```
+**Decrypted Output:**
+```
+CRYPTOGRAPHY
+```
+
+#### Block Cipher - XOR
+**Input Text:**  
+`Hello, World!`  
+**Key:** `mysecretkey123`  
+**Encrypted Output:**
+```
+25 1C 1F 09 0C 5E 45 23 04 17 15 55 13
+```
+**Decrypted Output:**
+```
+Hello, World!
+```
+
+#### Vigenère Cipher
+**Input Text:**  
+`CRYPTOGRAPHY`  
+**Key:** `KEY`  
+**Alphabet (unique characters):** `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
+**Encrypted Output:**
+```
+MVWZXMQVYZLW
+```
+**Decrypted Output:**
+```
+CRYPTOGRAPHY
+```
+
+---
+
+### Asymmetric Encryption/Decryption
+
+#### RSA
+
+--- 
 
 ## 📚 References
 
