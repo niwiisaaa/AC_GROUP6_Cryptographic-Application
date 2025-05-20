@@ -3,111 +3,36 @@ from werkzeug.utils import secure_filename
 import os
 import hashlib
 import random
-import secrets
+from cryptography.hazmat.primitives.asymmetric import dh, rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.backends import default_backend
+import cryptocode
+import pyaes
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ----------------- XOR Block Cipher Core ----------------- #
-
-def xor_block_cipher(data: bytes, key: bytes, block_size: int = 8, encrypt=True) -> bytes:
-    result = bytearray()
-    key_len = len(key)
-
-    for i in range(0, len(data), block_size):
-        block = data[i:i+block_size]
-        if len(block) < block_size and encrypt:
-            block += b' ' * (block_size - len(block))  # pad with spaces
-        for j in range(len(block)):
-            result.append(block[j] ^ key[j % key_len])
-    return bytes(result)
-
-# ----------------- Caesar Cipher Core ----------------- #
-
-def caesar_cipher(text, shift, mode='encrypt'):
-    result = []
-    breakdown = []
-    shift_vals = [int(s) for s in shift.strip().split()]
-    shift_len = len(shift_vals)
-    for i, c in enumerate(text):
-        s = shift_vals[i % shift_len]
-        if c.isalpha():
-            base = ord('A') if c.isupper() else ord('a')
-            if mode == 'encrypt':
-                shifted = (ord(c) - base + s) % 26 + base
-            else:
-                shifted = (ord(c) - base - s) % 26 + base
-            result.append(chr(shifted))
-            breakdown.append({'original': c, 'shift': s, 'result': chr(shifted)})
-        else:
-            result.append(c)
-            breakdown.append({'original': c, 'shift': '', 'result': c})
-    return ''.join(result), breakdown
-
-# ----------------- Vigenère Cipher Core ----------------- #
-
-def vigenere_cipher(text, key, mode='encrypt', alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
-    result = []
-    breakdown = []
-    alphabet = ''.join(dict.fromkeys(alphabet))  # remove duplicates, preserve order
-    if not alphabet:
-        # Always return the original text as result if alphabet is empty
-        return text, [{'original': c, 'key_char': '', 'shift': '', 'result': c} for c in text]
-    key = key.strip()
-    key_indices = [alphabet.index(k) for k in key if k in alphabet]
-    if not key_indices:
-        # Always return the original text as result if key is invalid
-        return text, [{'original': c, 'key_char': '', 'shift': '', 'result': c} for c in text]
-    j = 0  # key index
-    alpha_len = len(alphabet)
-    for i, c in enumerate(text):
-        if c in alphabet:
-            k = key_indices[j % len(key_indices)]
-            c_idx = alphabet.index(c)
-            if mode == 'encrypt':
-                shifted = (c_idx + k) % alpha_len
-            else:
-                shifted = (c_idx - k) % alpha_len
-            result_char = alphabet[shifted]
-            result.append(result_char)
-            breakdown.append({
-                'original': c,
-                'key_char': key[j % len(key_indices)],
-                'shift': k,
-                'result': result_char
-            })
-            j += 1
-        else:
-            result.append(c)
-            breakdown.append({
-                'original': c,
-                'key_char': '',
-                'shift': '',
-                'result': c
-            })
-    return ''.join(result), breakdown
-
 # ----------------- Hashing Core ----------------- #
 
 def compute_hash(data, algo='sha256'):
-    if algo == 'sha256':
-        h = hashlib.sha256()
-    elif algo == 'sha512':
-        h = hashlib.sha512()
-    elif algo == 'md5':
-        h = hashlib.md5()
-    elif algo == 'sha1':
-        h = hashlib.sha1()
-    else:
-        raise ValueError("Unsupported hash algorithm")
     if isinstance(data, str):
         data = data.encode()
-    h.update(data)
-    return h.hexdigest()
+    if algo == 'sha256':
+        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+    elif algo == 'sha512':
+        digest = hashes.Hash(hashes.SHA512(), backend=default_backend())
+    elif algo == 'md5':
+        digest = hashes.Hash(hashes.MD5(), backend=default_backend())
+    elif algo == 'sha1':
+        digest = hashes.Hash(hashes.SHA1(), backend=default_backend())
+    else:
+        raise ValueError("Unsupported hash algorithm")
+    digest.update(data)
+    return digest.finalize().hex()
 
-# ----------------- RSA Basic Core ----------------- #
+# -----------------  RSA Basic Core  ----------------- #
 
 def gcd(a, b):
     while b:
@@ -115,7 +40,6 @@ def gcd(a, b):
     return a
 
 def modinv(a, m):
-    # Extended Euclidean Algorithm
     m0, x0, x1 = m, 0, 1
     while a > 1:
         q = a // m
@@ -154,47 +78,149 @@ def rsa_generate_keys():
     return {'e': e, 'n': n}, {'d': d, 'n': n}
 
 def rsa_encrypt(message, e, n):
-    # Encrypt each character's ordinal value
     return [pow(ord(char), e, n) for char in message]
 
 def rsa_decrypt(encrypted, d, n):
-    # Decrypt list of integers to string
     return ''.join(chr(pow(c, d, n)) for c in encrypted)
 
-# ----------------- Diffie-Hellman Core ----------------- #
+# ----------------- Diffie-Hellman (pyca/cryptography) ----------------- #
 
-def dh_generate_params():
-    # Small primes for demo; use large primes in real applications!
-    p = 467  # example small prime
-    g = 2    # primitive root modulo p
-    a = secrets.randbelow(p-2) + 1
-    b = secrets.randbelow(p-2) + 1
-    A = pow(g, a, p)
-    B = pow(g, b, p)
-    s_a = pow(B, a, p)
-    s_b = pow(A, b, p)
+def dh_generate_params_pyca():
+    parameters = dh.generate_parameters(generator=2, key_size=512, backend=default_backend())
+    private_key_a = parameters.generate_private_key()
+    private_key_b = parameters.generate_private_key()
+    public_key_a = private_key_a.public_key()
+    public_key_b = private_key_b.public_key()
+    shared_key_a = private_key_a.exchange(public_key_b)
+    shared_key_b = private_key_b.exchange(public_key_a)
     return {
-        'prime': p,
-        'generator': g,
-        'private_a': a,
-        'private_b': b,
-        'public_a': A,
-        'public_b': B,
-        'shared_key_a': s_a,
-        'shared_key_b': s_b
+        'prime': parameters.parameter_numbers().p,
+        'generator': parameters.parameter_numbers().g,
+        'private_a': private_key_a.private_numbers().x,
+        'private_b': private_key_b.private_numbers().x,
+        'public_a': public_key_a.public_numbers().y,
+        'public_b': public_key_b.public_numbers().y,
+        'shared_key_a': int.from_bytes(shared_key_a, 'big'),
+        'shared_key_b': int.from_bytes(shared_key_b, 'big')
     }
 
-def dh_derive_key(shared_secret):
-    # Derive a 32-byte key from the shared secret (for XOR)
-    return hashlib.sha256(str(shared_secret).encode()).digest()
 
-def dh_xor_encrypt(text, shared_secret):
-    key = dh_derive_key(shared_secret)
-    return [ord(c) ^ key[i % len(key)] for i, c in enumerate(text)]
+# ----------------- CAESAR CIPHER ----------------- #
 
-def dh_xor_decrypt(data, shared_secret):
-    key = dh_derive_key(shared_secret)
-    return ''.join(chr(b ^ key[i % len(key)]) for i, b in enumerate(data))
+def caesar_cipher(text, shift_string, mode='encrypt'):
+    import string
+
+    # Convert shift string like "2 3 2" into a list of integers
+    try:
+        shift_values = list(map(int, shift_string.strip().split()))
+    except ValueError:
+        raise ValueError("Shift must be space-separated integers.")
+
+    if not shift_values:
+        raise ValueError("No shift values provided.")
+
+    result = ''
+    breakdown = []
+    alphabet = string.ascii_lowercase
+    shift_index = 0
+
+    for char in text:
+        shift = shift_values[shift_index % len(shift_values)]
+        if mode == 'decrypt':
+            shift = -shift
+
+        if char.isalpha():
+            is_upper = char.isupper()
+            base = ord('A') if is_upper else ord('a')
+            new_char = chr((ord(char) - base + shift) % 26 + base)
+            breakdown.append({
+                'original': char,
+                'shift': shift,
+                'result': new_char
+            })
+            result += new_char
+            shift_index += 1
+        else:
+            breakdown.append({
+                'original': char,
+                'shift': 0,
+                'result': char
+            })
+            result += char
+
+    return result, breakdown
+
+# ----------------- VIGENERE CIPHER ----------------- #
+
+def vigenere_cipher(text, key, mode='encrypt', alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
+    alphabet = alphabet.upper()
+    key = key.upper()
+    text = text.upper()
+    key_length = len(key)
+    key_index = 0
+    result = ''
+    breakdown = []
+
+    for char in text:
+        if char in alphabet:
+            key_char = key[key_index % key_length]
+            text_index = alphabet.index(char)
+            key_index_value = alphabet.index(key_char)
+
+            if mode == 'encrypt':
+                shifted_index = (text_index + key_index_value) % len(alphabet)
+            elif mode == 'decrypt':
+                shifted_index = (text_index - key_index_value) % len(alphabet)
+            else:
+                raise ValueError("Mode must be 'encrypt' or 'decrypt'")
+
+            result_char = alphabet[shifted_index]
+            result += result_char
+            breakdown.append({
+                'original': char,
+                'key_char': key_char,
+                'shift': key_index_value if mode == 'encrypt' else -key_index_value,
+                'result': result_char
+            })
+
+            key_index += 1
+        else:
+            # Non-alphabet characters are added unchanged
+            result += char
+            breakdown.append({
+                'original': char,
+                'key_char': '',
+                'shift': '',
+                'result': char
+            })
+
+    return result, breakdown
+
+
+# ----------------- AES Block Cipher (pyaes) ----------------- #
+
+def aes_encrypt_pyaes(plaintext, key):
+    key_bytes = hashlib.sha256(key.encode()).digest()
+    aes = pyaes.AESModeOfOperationCTR(key_bytes)
+    ciphertext = aes.encrypt(plaintext)
+    return ciphertext.hex()
+
+def aes_decrypt_pyaes(ciphertext_hex, key):
+    key_bytes = hashlib.sha256(key.encode()).digest()
+    aes = pyaes.AESModeOfOperationCTR(key_bytes)
+    try:
+        plaintext = aes.decrypt(bytes.fromhex(ciphertext_hex))
+        return plaintext.decode(errors='replace')
+    except Exception:
+        return "[Decryption failed]"
+
+# ----------------- Symmetric (cryptocode) ----------------- #
+
+def symmetric_encrypt_cryptocode(text, password):
+    return cryptocode.encrypt(text, password)
+
+def symmetric_decrypt_cryptocode(ciphertext, password):
+    return cryptocode.decrypt(ciphertext, password)
 
 # ----------------- API Routes ----------------- #
 
@@ -329,17 +355,17 @@ def api_diffie_hellman():
     data = request.json
     action = data.get('action')
     if action == 'generate':
-        params = dh_generate_params()
+        params = dh_generate_params_pyca()
         return jsonify(params)
     elif action == 'encrypt':
         text = data.get('text', '')
-        shared_secret = int(data.get('shared_secret'))
-        encrypted = dh_xor_encrypt(text, shared_secret)
+        password = str(data.get('shared_secret', ''))
+        encrypted = symmetric_encrypt_cryptocode(text, password)
         return jsonify({'encrypted': encrypted})
     elif action == 'decrypt':
-        encrypted = data.get('encrypted', [])
-        shared_secret = int(data.get('shared_secret'))
-        decrypted = dh_xor_decrypt(encrypted, shared_secret)
+        ciphertext = data.get('encrypted', '')
+        password = str(data.get('shared_secret', ''))
+        decrypted = symmetric_decrypt_cryptocode(ciphertext, password)
         return jsonify({'decrypted': decrypted})
     else:
         return jsonify({'error': 'Invalid action'}), 400
@@ -358,14 +384,11 @@ def upload_block():
 
     try:
         if mode == 'encrypt':
-            output_bytes = xor_block_cipher(content, key, block_size, encrypt=True)
-            hex_output = ' '.join(format(b, '02X') for b in output_bytes)
-            return jsonify({'result': hex_output})
+            output_bytes = aes_encrypt_pyaes(content.decode(errors='replace'), key.decode())
+            return jsonify({'result': output_bytes})
         else:
-            hex_parts = content.decode().strip().split()
-            decoded = bytes(int(h, 16) for h in hex_parts)
-            decrypted = xor_block_cipher(decoded, key, block_size, encrypt=False)
-            return jsonify({'result': decrypted.decode(errors="replace")})
+            decrypted = aes_decrypt_pyaes(content.decode(errors='replace'), key.decode())
+            return jsonify({'result': decrypted})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -444,8 +467,6 @@ def rsa_basic():
 @app.route('/diffie_hellman')
 def diffie_hellman_page():
     return render_template('diffie_hellman.html')
-
-# ----------------- Run Server ----------------- #
 
 if __name__ == '__main__':
     app.run(debug=True)
