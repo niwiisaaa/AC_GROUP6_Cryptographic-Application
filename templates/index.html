@@ -1,103 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Applied Cryptography</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applied Cryptography</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Applied Cryptography</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/caesar_cipher">Caesar Cipher🔒</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/block_cipher_xor">Block Cipher-XOR🔒</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/vigenere">Vigenère Cipher🔒</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/diffie_hellman">Diffie-Hellman🔒</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/rsa_basic">RSA Basic🔒</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/hash">Hash Functions🔒</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="jumbotron">
-            <h1 class="display-4">Welcome to Applied Cryptography</h1>
-            <p class="lead">This application provides implementations of various cryptographic algorithms.</p>
-            <hr class="my-4">
-            <p>Choose a cryptographic method from the navigation menu to get started.</p>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Caesar Cipher🔒</h5>
-                        <p class="card-text">One of the simplest encryption techniques, shifting letters by a fixed amount.</p>
-                        <a href="/caesar_cipher" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Block Cipher-XOR🔒</h5>
-                        <p class="card-text">A block cipher implementation using XOR operations.</p>
-                        <a href="/block_cipher_xor" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Vigenère Cipher🔒</h5>
-                        <p class="card-text">Encrypts text using a repeating key and a custom alphabet.</p>
-                        <a href="/vigenere" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Diffie-Hellman🔒</h5>
-                        <p class="card-text">A method of securely exchanging cryptographic keys and encrypting text using the shared secret.</p>
-                        <a href="/diffie_hellman" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">RSA Basic🔒</h5>
-                        <p class="card-text">A public-key cryptosystem for secure text encryption and decryption.</p>
-                        <a href="/rsa_basic" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Hash Functions🔒</h5>
-                        <p class="card-text">Compute SHA256, SHA512, MD5, or SHA1 hashes for text or files.</p>
-                        <a href="/hash" class="btn btn-primary">Try it</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark custom-nav">
+    <div class="container">
+      <a class="navbar-brand site-title" href="/">APPLIED CRYPTOGRAPHY</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link{% if request.path == '/' %} active{% endif %}" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/caesar_cipher">Caesar Cipher </a></li>
+          <li class="nav-item"><a class="nav-link" href="/block_cipher_xor">Block Cipher-XOR </a></li>
+          <li class="nav-item"><a class="nav-link" href="/vigenere">Vigenère Cipher </a></li>
+          <li class="nav-item"><a class="nav-link" href="/diffie_hellman">Diffie-Hellman</a></li>
+          <li class="nav-item"><a class="nav-link" href="/rsa_basic">RSA Basic </a></li>
+          <li class="nav-item"><a class="nav-link" href="/hash">Hash Functions</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <p>© 2025 Applied Cryptography Flask App</p>
-    </footer>
+  <div class="header-text">
+    <h1>WELCOME TO OUR CRYPTOGRAPHIC APPLICATION</h1>
+    <p>Kindly choose a cryptographic method from the navigation menu to get started.</p>
+  </div>
+  <div class="black-bar"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <div class="card-grid">
+    <div class="crypto-card">
+      <h2>CAESAR CIPHER🔒</h2>
+      <p>One of the simplest encryption techniques, shifting letters by a fixed amount.</p>
+      <a href="/caesar_cipher" class="try-button">TRY IT</a>
+    </div>
+    <div class="crypto-card">
+      <h2>BLOCK CIPHER (XOR)🔒</h2>
+      <p>A block cipher implementation using XOR operations.</p>
+      <a href="/block_cipher_xor" class="try-button">TRY IT</a>
+    </div>
+    <div class="crypto-card">
+      <h2>VIGENÈRE CIPHER🔒</h2>
+      <p>One of the simplest encryption techniques, shifting letters by a fixed amount.</p>
+      <a href="/vigenere" class="try-button">TRY IT</a>
+    </div>
+    <div class="crypto-card">
+      <h2>DIFFIE - HELLMAN🔒</h2>
+      <p>A method of securely exchanging cryptographic keys and encrypting text using the shared secret.</p>
+      <a href="/diffie_hellman" class="try-button">TRY IT</a>
+    </div>
+    <div class="crypto-card">
+      <h2>HASH FUNCTIONS🔒</h2>
+      <p>Compute SHA256, SHA512, MD5, or SHA1 hashes for text or files.</p>
+      <a href="/hash" class="try-button">TRY IT</a>
+    </div>
+    <div class="crypto-card">
+      <h2>RSA BASIC🔒</h2>
+      <p>A public-key cryptosystem for secure text encryption and decryption.</p>
+      <a href="/rsa_basic" class="try-button">TRY IT</a>
+    </div>
+  </div>
+
+  <footer>
+    CSAC 329 | GROUP 6 | DE SILVA | PARAÑAL | VALLE
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
