@@ -84,15 +84,30 @@ def rsa_decrypt(encrypted, d, n):
     return ''.join(chr(pow(c, d, n)) for c in encrypted)
 
 # ----------------- Diffie-Hellman (pyca/cryptography) ----------------- #
+def xor_encrypt_decrypt(text, key):
+    return [ord(c) ^ (key % 256) for c in text]
+
+def xor_decrypt(ciphertext, key):
+    return ''.join(chr(c ^ (key % 256)) for c in ciphertext)
 
 def dh_generate_params_pyca():
     parameters = dh.generate_parameters(generator=2, key_size=512, backend=default_backend())
+    
+    # Generate private keys for both parties
     private_key_a = parameters.generate_private_key()
     private_key_b = parameters.generate_private_key()
+    
+    # Generate public keys
     public_key_a = private_key_a.public_key()
     public_key_b = private_key_b.public_key()
+    
+    # Perform key exchange to generate the shared keys
     shared_key_a = private_key_a.exchange(public_key_b)
     shared_key_b = private_key_b.exchange(public_key_a)
+    
+    # Ensure the shared keys are the same (just for verification)
+    assert shared_key_a == shared_key_b
+
     return {
         'prime': parameters.parameter_numbers().p,
         'generator': parameters.parameter_numbers().g,
@@ -103,7 +118,6 @@ def dh_generate_params_pyca():
         'shared_key_a': int.from_bytes(shared_key_a, 'big'),
         'shared_key_b': int.from_bytes(shared_key_b, 'big')
     }
-
 
 # ----------------- CAESAR CIPHER ----------------- #
 
@@ -354,21 +368,41 @@ def api_rsa():
 def api_diffie_hellman():
     data = request.json
     action = data.get('action')
+
     if action == 'generate':
-        params = dh_generate_params_pyca()
-        return jsonify(params)
+        parameters = dh.generate_parameters(generator=2, key_size=512, backend=default_backend())
+        private_key_a = parameters.generate_private_key()
+        private_key_b = parameters.generate_private_key()
+        public_key_a = private_key_a.public_key()
+        public_key_b = private_key_b.public_key()
+        shared_key_a = private_key_a.exchange(public_key_b)
+        shared_key_b = private_key_b.exchange(public_key_a)
+        return jsonify({
+            'prime': parameters.parameter_numbers().p,
+            'generator': parameters.parameter_numbers().g,
+            'private_a': private_key_a.private_numbers().x,
+            'private_b': private_key_b.private_numbers().x,
+            'public_a': public_key_a.public_numbers().y,
+            'public_b': public_key_b.public_numbers().y,
+            'shared_key_a': int.from_bytes(shared_key_a, 'big'),
+            'shared_key_b': int.from_bytes(shared_key_b, 'big'),
+        })
+
     elif action == 'encrypt':
-        text = data.get('text', '')
-        password = str(data.get('shared_secret', ''))
-        encrypted = symmetric_encrypt_cryptocode(text, password)
+        text = data.get('text')
+        shared_secret = int(data.get('shared_secret'))
+        encrypted = xor_encrypt_decrypt(text, shared_secret)
         return jsonify({'encrypted': encrypted})
+
     elif action == 'decrypt':
-        ciphertext = data.get('encrypted', '')
-        password = str(data.get('shared_secret', ''))
-        decrypted = symmetric_decrypt_cryptocode(ciphertext, password)
+        encrypted = data.get('encrypted')
+        shared_secret = int(data.get('shared_secret'))
+        if not isinstance(encrypted, list) or not all(isinstance(i, int) for i in encrypted):
+            return jsonify({'error': 'Invalid encrypted data format'}), 400
+        decrypted = xor_decrypt(encrypted, shared_secret)
         return jsonify({'decrypted': decrypted})
-    else:
-        return jsonify({'error': 'Invalid action'}), 400
+
+    return jsonify({'error': 'Invalid action'}), 400
 
 @app.route('/upload/block', methods=['POST'])
 def upload_block():
