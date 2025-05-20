@@ -48,47 +48,48 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 - **Type:** Symmetric
 - **History/Background:** Caesar Cipher is one of the earliest known encryption techniques, named after Julius Caesar, who used it to protect military communications. It is a simple substitution cipher that shifts each letter in the plaintext by a fixed number of positions in the alphabet. 
 - **Process:** With a given shift (e.g., 3), each letter is replaced by another letter that is three positions ahead in the alphabet (A → D, B → E, etc.). The same shift value is used for both encryption and decryption. 
-- **Library:**
-- **Integration:**
+- **Library:** Custom Python code
+- **Integration:** This classic cipher shifts letters by a certain number. Users enter the text and shift values, and the app processes it directly using simple logic for both text and file input.
 
 #### 2. Block Cipher (AES)
 - **Type:** Symmetric
 - **History/Background:** AES (Advanced Encryption Standard) was developed by the National Institute of Standards and Technology (NIST) in 2001, AES was introduced as the successor to DES and Triple DES. It became the encryption standard due to its balance of security, performance, and flexibility.
 - **Process:** AES encrypts data in 128-bit blocks using key sizes of 128, 192, or 256 bits. It applies multiple rounds of byte substitution, row shifting, column mixing, and key addition based on the key length. 
-- **Library:** 
-- **Integration:** 
+- **Library:** pyaes, hashlib
+- **Integration:** AES is used to encrypt and decrypt text and files. The key is first converted using SHA-256 to make it suitable for encryption. The app handles this in the background when users input text or upload files.
 
 #### 3. Vigenère Cipher
 - **Type:** Symmetric
 - **History/Background:** Vigenère Cipher was first introduced by Giovan Battista Bellaso in 1553, but later popularized and named after Blaise de Vigenère in 1586. Though once believed unbreakable, it was eventually deciphered by Charles Babbage and Friedrich Kasiski using mathematical analysis.
 - **Process:** Encrypts text by shifting each letter based on a repeating keyword (a series of Caesar ciphers).
-- **Library:** 
-- **Integration:**
+- **Library:** Custom Python code
+- **Integration:** Uses a keyword to shift letters in the message. The app lets users input a message and a keyword to encrypt or decrypt text or uploaded files.
 
 #### 4. RSA
 - **Type:** Asymmetric
 - **History/Background:** RSA was developed in 1977 by Ron Rivest, Adi Shamir, and Leonard Adleman at Massachusetts Institute of Technology. It was designed to secure digital communication over untrusted networks. RSA solved the problem of key distribution in traditional cryptography by introducing public-key encryption.
 - **Process:** Encrypts data using the recipient’s public key and decrypts it with their private key, enabling secure communication without prior key exchange.
-- **Library:** 
-- **Integration:**
+- **Library:** Custom Python code (using math and random)
+- **Integration:** The app creates RSA key pairs and allows users to encrypt messages with the public key and decrypt them with the private key. Everything is handled inside the app with basic math.
 
 #### 5. Diffie-Hellman
-- **Type:** Asymmetric
+- **Type:** Asymmetric (Key Exchange) 
 - **History/Background:** Diffie-Hellman was introduced in 1976 by Whitfield Diffie and Martin Hellman, it was the first widely used method to securely exchange cryptographic keys over a public channel. It laid the foundation for public-key cryptography. 
 - **Process:** Two parties agree on a large prime number and a base. Each party chooses a secret number, computes a public value, and exchanges it. Using the received value and their own secret, both compute the same shared secret key. 
-- **Library:** 
-- **Integration:**
+- **Library:** cryptography.hazmat.primitives.asymmetric.dh, cryptocode
+- **Integration:** This method securely creates a shared secret between two parties. The shared secret can then be used to encrypt and decrypt messages using the cryptocode library.
 
 #### 6. Hashing Functions (SHA-256, SHA-512, MD5, SHA-1)
 - **Type:** Hash 
 - **History/Background:** Hash functions were developed to ensure data integrity and security. MD5 was released in 1992, SHA-1 in 1995, and SHA-2 (which includes SHA-256 and SHA-512) in 2001 by the U.S. National Security Agency (NSA). 
 - **Process:** Converts input data into a fixed-length hash value. Any change in the input produces a completely different hash. The process is deterministic, fast, and irreversible.
-- **Library:**  
-- **Integration:**
+- **Library:** cryptography.hazmat.primitives.hashes, hashlib
+- **Integration:** Converts text or file content into a unique hash value. The app supports different algorithms and shows the result instantly.
 
 ---
 
 ## 🖥️ Sample Runs/Outputs
+
 
 
 ## 📚 References
