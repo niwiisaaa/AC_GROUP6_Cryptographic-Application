@@ -125,6 +125,7 @@ Hello, World!
 `CRYPTOGRAPHY`  
 **Key:** `KEY`  
 **Alphabet (unique characters):** `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
+
 **Encrypted Output:**
 ```
 MVWZXMQVYZLW
