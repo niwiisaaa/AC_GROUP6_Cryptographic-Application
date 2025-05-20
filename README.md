@@ -35,7 +35,7 @@ This cryptographic application is developed using **Flask**, a lightweight and f
 The architecture follows a client-server model:
 
 - Frontend: HTML/CSS templates rendered via Flask’s render_template functionality, enabling users to input text, upload files, and choose cryptographic operations through an intuitive web interface.
-- Backend: Python handles the logic for encryption, decryption, and hashing using various cryptographic libraries (e.g., pycryptodome, cryptography, rsa, hashlib).
+- Backend: Python handles the core logic for encryption, decryption, and hashing using manually implemented logic and selected cryptographic libraries.
 - Integration: Each cryptographic function is mapped to a route in Flask, processing user input and displaying results dynamically.
 
 The UI guides users through selecting an algorithm, entering or uploading data, and viewing results, with descriptions of each algorithm available within the application to promote learning and understanding.
