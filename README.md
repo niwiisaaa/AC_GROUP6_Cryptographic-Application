@@ -51,12 +51,12 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 - **Library:** Custom Python code
 - **Integration:** This classic cipher shifts letters by a certain number. Users enter the text and shift values, and the app processes it directly using simple logic for both text and file input.
 
-#### 2. Block Cipher (AES)
+#### 2. Block Cipher - XOR
 - **Type:** Symmetric
-- **History/Background:** AES (Advanced Encryption Standard) was developed by the National Institute of Standards and Technology (NIST) in 2001, AES was introduced as the successor to DES and Triple DES. It became the encryption standard due to its balance of security, performance, and flexibility.
-- **Process:** AES encrypts data in 128-bit blocks using key sizes of 128, 192, or 256 bits. It applies multiple rounds of byte substitution, row shifting, column mixing, and key addition based on the key length. 
-- **Library:** pyaes, hashlib
-- **Integration:** AES is used to encrypt and decrypt text and files. The key is first converted using SHA-256 to make it suitable for encryption. The app handles this in the background when users input text or upload files.
+- **History/Background:** XOR (exclusive OR) encryption is a basic and fast method for combining plaintext with a repeating key at the binary level. While it is not secure on its own, it is often used in stream ciphers and helps illustrate how binary operations can be used in cryptography.
+- **Process:** Each character from the plaintext is XORed with a character from the repeating key. The result is a hexadecimal representation of the XOR values. The same key and operation are used to decrypt.
+- **Library:** No external cryptographic libraries are used; implemented using built-in Python functions
+- **Integration:** The app allows users to input text and a key, performing XOR encryption/decryption directly. File upload for XOR is also supported and returns a detailed binary/hex breakdown.
 
 #### 3. Vigenère Cipher
 - **Type:** Symmetric
@@ -69,21 +69,21 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 - **Type:** Asymmetric
 - **History/Background:** RSA was developed in 1977 by Ron Rivest, Adi Shamir, and Leonard Adleman at Massachusetts Institute of Technology. It was designed to secure digital communication over untrusted networks. RSA solved the problem of key distribution in traditional cryptography by introducing public-key encryption.
 - **Process:** Encrypts data using the recipient’s public key and decrypts it with their private key, enabling secure communication without prior key exchange.
-- **Library:** Custom Python code (using math and random)
+- **Library:** Custom Python code (using 'random' and math functions)
 - **Integration:** The app creates RSA key pairs and allows users to encrypt messages with the public key and decrypt them with the private key. Everything is handled inside the app with basic math.
 
 #### 5. Diffie-Hellman
 - **Type:** Asymmetric (Key Exchange) 
 - **History/Background:** Diffie-Hellman was introduced in 1976 by Whitfield Diffie and Martin Hellman, it was the first widely used method to securely exchange cryptographic keys over a public channel. It laid the foundation for public-key cryptography. 
 - **Process:** Two parties agree on a large prime number and a base. Each party chooses a secret number, computes a public value, and exchanges it. Using the received value and their own secret, both compute the same shared secret key. 
-- **Library:** cryptography.hazmat.primitives.asymmetric.dh, cryptocode
+- **Library:** 'cryptography.hazmat.primitives.asymmetric.dh', 'cryptocode'
 - **Integration:** This method securely creates a shared secret between two parties. The shared secret can then be used to encrypt and decrypt messages using the cryptocode library.
 
 #### 6. Hashing Functions (SHA-256, SHA-512, MD5, SHA-1)
 - **Type:** Hash 
 - **History/Background:** Hash functions were developed to ensure data integrity and security. MD5 was released in 1992, SHA-1 in 1995, and SHA-2 (which includes SHA-256 and SHA-512) in 2001 by the U.S. National Security Agency (NSA). 
 - **Process:** Converts input data into a fixed-length hash value. Any change in the input produces a completely different hash. The process is deterministic, fast, and irreversible.
-- **Library:** cryptography.hazmat.primitives.hashes, hashlib
+- **Library:** 'cryptography.hazmat.primitives.hashes', 'hashlib'
 - **Integration:** Converts text or file content into a unique hash value. The app supports different algorithms and shows the result instantly.
 
 ---
@@ -94,7 +94,7 @@ The UI guides users through selecting an algorithm, entering or uploading data, 
 
 ## 📚 References
 
-- [GeeksforGeeks – Advanced Encryption Standard (AES)](https://www.geeksforgeeks.org/advanced-encryption-standard-aes/) 
+- [Wikipedia – XOR cipher](https://en.wikipedia.org/wiki/XOR_cipher) 
 - [GeeksforGeeks – Caesar Cipher in Cryptography](https://www.geeksforgeeks.org/caesar-cipher-in-cryptography/)
 - [Study.com – Vigenre Cipher History, Example & Coding Variants](https://study.com/academy/lesson/vigenere-cipher-square-decoder.html)
 - [Splunk Blogs – RSA Algorithm in Cryptography: Rivest Shamir Adleman Explained](https://www.splunk.com/en_us/blog/learn/rsa-algorithm-cryptography.html)
