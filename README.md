@@ -98,6 +98,7 @@ Below are text-based output examples for each algorithm's functionality.
 **Input Text:**  
 `CRYPTOGRAPHY`  
 **Key (Shift):** `3`  
+
 **Encrypted Output:**
 ```
 FUBSWRJUDSKB
@@ -111,6 +112,7 @@ CRYPTOGRAPHY
 **Input Text:**  
 `Hello, World!`  
 **Key:** `mysecretkey123`  
+
 **Encrypted Output:**
 ```
 25 1C 1F 09 0C 5E 45 23 04 17 15 55 13
@@ -141,6 +143,45 @@ CRYPTOGRAPHY
 
 #### RSA
 
+**Input Text:**  
+`Cryptography`  
+**Public Key:**  
+`-----BEGIN PUBLIC KEY----- ... -----END PUBLIC KEY-----` 
+**Private Key:**
+`-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----`
+
+**Encrypted Output:**
+```
+[29647,4083,44086,6480,20454,46450,20258,4083,19195,6480,7329,44086]
+```
+**Decrypted Output:**
+```
+Cryptography
+```
+--- 
+
+#### Diffie-Hellman
+
+
+---
+
+### Hashing Functions
+
+#### SHA-256 (Text)
+**Input Text:**  
+`sampletext`  
+**Output:**
+```
+a5871e22ae2dc0dcffdaebcffa9d12ab2278e22feaa5cbe2891eba56d52678f5
+```
+
+#### MD5 (Text)
+**Input Text:**  
+`hashme`  
+**Output:**
+```
+533f6357e0210e67d91f651bc49e1278
+```
 --- 
 
 ## 📚 References
