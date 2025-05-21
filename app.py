@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
 import cryptocode
 import pyaes
+import string
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -123,8 +124,8 @@ def dh_generate_params_pyca():
 
 def caesar_cipher(text, shift_string, mode='encrypt'):
     import string
+    printable = string.printable
 
-    # Convert shift string like "2 3 2" into a list of integers
     try:
         shift_values = list(map(int, shift_string.strip().split()))
     except ValueError:
@@ -135,32 +136,33 @@ def caesar_cipher(text, shift_string, mode='encrypt'):
 
     result = ''
     breakdown = []
-    alphabet = string.ascii_lowercase
     shift_index = 0
 
     for char in text:
+        if char in ['\n', '\r']:
+            continue 
+
         shift = shift_values[shift_index % len(shift_values)]
         if mode == 'decrypt':
             shift = -shift
 
-        if char.isalpha():
-            is_upper = char.isupper()
-            base = ord('A') if is_upper else ord('a')
-            new_char = chr((ord(char) - base + shift) % 26 + base)
+        if char in printable:
+            idx = printable.index(char)
+            new_char = printable[(idx + shift) % len(printable)]
+            result += new_char
             breakdown.append({
                 'original': char,
                 'shift': shift,
                 'result': new_char
             })
-            result += new_char
             shift_index += 1
         else:
+            result += char
             breakdown.append({
                 'original': char,
                 'shift': 0,
                 'result': char
             })
-            result += char
 
     return result, breakdown
 
@@ -209,7 +211,6 @@ def vigenere_cipher(text, key, mode='encrypt', alphabet='ABCDEFGHIJKLMNOPQRSTUVW
             })
 
     return result, breakdown
-
 
 # ----------------- AES Block Cipher (pyaes) ----------------- #
 
@@ -442,22 +443,31 @@ def upload_caesar():
 
 @app.route('/upload/vigenere', methods=['POST'])
 def upload_vigenere():
-    file = request.files.get('file')
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
     key = request.form.get('key', '')
-    alphabet = request.form.get('alphabet', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    mode = request.form.get('mode', 'encrypt')
-    if not file:
-        return jsonify({'result': '', 'error': 'No file uploaded'})
-    content = file.read().decode(errors='replace')
-    if not key or not alphabet:
-        # Return original file content if key or alphabet is missing
-        return jsonify({'result': content})
+    alphabet = request.form.get('alphabet', '')
+    mode = request.form.get('mode', '')
+
+    if file.filename == '':
+        return jsonify({'error': 'Empty filename'}), 400
+    if not key or not alphabet or not mode:
+        return jsonify({'error': 'Missing key, alphabet, or mode'}), 400
+
     try:
-        result, _ = vigenere_cipher(content, key, mode, alphabet)
+        text = file.read().decode('utf-8')  # directly read without saving
+        result, breakdown = vigenere_cipher(text, key, mode, alphabet)
+
         return jsonify({'result': result})
+
+    except UnicodeDecodeError:
+        return jsonify({'error': 'Invalid file encoding. Please upload UTF-8 encoded text files only.'}), 400
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
     except Exception as e:
-        # Always return at least the original file content as result
-        return jsonify({'result': content, 'error': str(e)}), 200
+        return jsonify({'error': f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/upload/hash', methods=['POST'])
 def upload_hash():
