@@ -147,8 +147,7 @@ CRYPTOGRAPHY
 `Cryptography`  
 **Public Key:**  
 `-----BEGIN PUBLIC KEY----- ... -----END PUBLIC KEY-----` 
-
-**Private Key:**
+**Private Key:**  
 `-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----`
 
 **Encrypted Output:**
@@ -163,7 +162,37 @@ Cryptography
 
 #### Diffie-Hellman
 
+**Input Text:** 
+`Confidential`
+**Prime (p):**
+`6.74095192508171e+153`
+**Generator:** 
+`2`
 
+**Alice**
+**Private Key (a):**
+`5.40282997502746e+153`
+**Public Key (A = g^a mod p):**
+`3.0208394115311393e+153`
+**Shared Secret Key (s = B^a mod p):**
+`1.325189689279844e+153`
+
+**Bob**
+**Private Key (b):**
+`6.283412939142339e+153`
+**Public Key (B = g^b mod p):**
+`4.273626547162744e+152`
+**Shared Secret Key (s = A^b mod p):**
+`1.325189689279844e+153`
+
+**Encrypted Output:**
+```
+[67, 111, 110, 102, 105, 100, 101, 110, 116, 105, 97, 108]
+```
+**Decrypted Output:**
+```
+Confidential
+```
 ---
 
 ### Hashing Functions
