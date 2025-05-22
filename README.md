@@ -94,9 +94,10 @@ Below are text-based output examples for each algorithm's functionality.
 
 ### Symmetric Encryption/Decryption
 
-#### Caesar Cipher
+#### 🔐 Caesar Cipher
 **Input Text:**  
 `CRYPTOGRAPHY`  
+
 **Key (Shift):** `3`  
 
 **Encrypted Output:**
@@ -108,9 +109,10 @@ FUBSWRJUDSKB
 CRYPTOGRAPHY
 ```
 
-#### Block Cipher - XOR
+#### 🔐 Block Cipher - XOR
 **Input Text:**  
 `Hello, World!`  
+
 **Key:** `mysecretkey123`  
 
 **Encrypted Output:**
@@ -122,10 +124,12 @@ CRYPTOGRAPHY
 Hello, World!
 ```
 
-#### Vigenère Cipher
+#### 🔐 Vigenère Cipher
 **Input Text:**  
 `CRYPTOGRAPHY`  
+
 **Key:** `KEY`  
+
 **Alphabet (unique characters):** `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
 
 **Encrypted Output:**
@@ -139,14 +143,16 @@ CRYPTOGRAPHY
 
 ---
 
-### Asymmetric Encryption/Decryption
+### 🔐 Asymmetric Encryption/Decryption
 
 #### RSA
 
 **Input Text:**  
 `Cryptography`  
+
 **Public Key:**  
 `-----BEGIN PUBLIC KEY----- ... -----END PUBLIC KEY-----` 
+
 **Private Key:**  
 `-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----`
 
@@ -160,28 +166,36 @@ Cryptography
 ```
 --- 
 
-#### Diffie-Hellman
+#### 🔐 Diffie-Hellman
 
 **Input Text:** 
 `Confidential`
+
 **Prime (p):**
 `6.74095192508171e+153`
+
 **Generator:** 
 `2`
 
 **Alice**
+
 **Private Key (a):**
 `5.40282997502746e+153`
+
 **Public Key (A = g^a mod p):**
 `3.0208394115311393e+153`
+
 **Shared Secret Key (s = B^a mod p):**
 `1.325189689279844e+153`
 
 **Bob**
+
 **Private Key (b):**
 `6.283412939142339e+153`
+
 **Public Key (B = g^b mod p):**
 `4.273626547162744e+152`
+
 **Shared Secret Key (s = A^b mod p):**
 `1.325189689279844e+153`
 
@@ -195,11 +209,12 @@ Confidential
 ```
 ---
 
-### Hashing Functions
+### 🔐 Hashing Functions
 
 #### SHA-256 (Text)
 **Input Text:**  
 `sampletext`  
+
 **Output:**
 ```
 a5871e22ae2dc0dcffdaebcffa9d12ab2278e22feaa5cbe2891eba56d52678f5
@@ -208,6 +223,7 @@ a5871e22ae2dc0dcffdaebcffa9d12ab2278e22feaa5cbe2891eba56d52678f5
 #### MD5 (Text)
 **Input Text:**  
 `hashme`  
+
 **Output:**
 ```
 533f6357e0210e67d91f651bc49e1278
