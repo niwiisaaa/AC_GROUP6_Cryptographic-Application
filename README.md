@@ -11,6 +11,16 @@
 
 ---
 
+## 🔗 Presentation Link 
+
+- https://drive.google.com/drive/folders/1CM5nwO9kdG17iptWs48lPrS37qT_Obbl?usp=sharing
+
+- To view app (deployed on cloud server) click this link:
+   https://ac-group6-cryptographic-application-final.onrender.com
+
+--- 
+
+
 ## 📖 Introduction
 
 This project is a simple application developed for the Applied Cryptography (CSAC 329) course. Its purpose is to implement various cryptographic techniques to secure communication, data, and information exchange. Cryptography plays a critical role in protecting the confidentiality, integrity, and authenticity of messages and files. The application provides a user-friendly interface that allows users to encrypt, decrypt, and hash both text and files using different cryptographic algorithms.
